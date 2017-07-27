@@ -1,9 +1,19 @@
 #include <Adafruit_NeoPixel.h>
 #define PIN 6
 
+const int ledPin =  5;  // Led on power switch.
+int ledState = LOW;
+unsigned long previousMillis = 0;
+const long interval = 1000;
 
-int potpin = 8;  // analog pin used to connect the potentiometer
-int clearPathPin = 10;    // LED connected to digital pin 9
+const int reversePin = 8;
+int reverseState = LOW;
+
+const int keyPin = 9;
+int keySwitchState = LOW;
+
+int potpin = 15;  // analog pin used to connect the potentiometer
+int clearPathPin = 10;    // LED connected to digital 
 int val;    // variable to read the value from the analog pin
 int light = 0;
 
@@ -25,6 +35,9 @@ int b[] = {255,255,244,16,0,0,0,112,240};
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(60, PIN, NEO_GRB + NEO_KHZ800);
 
 void setup() {
+  pinMode(ledPin, OUTPUT);
+  pinMode(reversePin, OUTPUT);
+  pinMode(keyPin, INPUT);
   Serial.begin(9600);
   Serial.print("Serial comms initialized \n\n");
   strip.begin();
@@ -38,16 +51,45 @@ void speedometer(uint32_t c, uint8_t wait) {
             strip.setPixelColor(i, c);   
             Serial.print("lighting: ");
             Serial.print(i);
-            Serial.print("\n");                  
+            Serial.print("\n");                        
           }
           else {
             strip.setPixelColor(i, 0);
-            Serial.print("blanking: ");
-            Serial.print(i);
-            Serial.print("\n");
+
           }
         }
       strip.show();
+}
+
+void blink() {
+     unsigned long currentMillis = millis();
+
+    if (currentMillis - previousMillis >= interval) {
+    // save the last time you blinked the LED
+    previousMillis = currentMillis;
+
+    // if the LED is off turn it on and vice-versa:
+    if (ledState == LOW) {
+      ledState = HIGH;
+    } else {
+      ledState = LOW;
+    }
+
+    // set the LED with the ledState of the variable:
+    digitalWrite(ledPin, ledState);
+  }
+}
+
+void reverse() {
+  keySwitchState = digitalRead(keyPin);
+
+    if (keySwitchState == HIGH) {
+    // turn LED on:
+    digitalWrite(reversePin, HIGH);
+  } else {
+    // turn LED off:
+    digitalWrite(reversePin, LOW);
+  }
 }
 
 void loop() {
@@ -57,6 +99,10 @@ void loop() {
   analogWrite(clearPathPin, val);
   speedometer(strip.Color(r[light], g[light], b[light]), 5); // Red
   delay(15);                           // waits for the servo to get there
+  blink();
+  reverse();  
+
+
 
 
 }
