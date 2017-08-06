@@ -1,3 +1,7 @@
+#Power Wrapper Controller 
+#Brent Kinser
+#brentkinser@icloud.com
+
 #include <Adafruit_NeoPixel.h>
 #define PIN 6
 
