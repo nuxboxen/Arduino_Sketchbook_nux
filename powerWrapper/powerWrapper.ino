@@ -1,7 +1,7 @@
 #include <Adafruit_NeoPixel.h>
 #define PIN 6
 
-const int ledPin =  5;  // Led on power switch.
+const int ledPin =  7;  // Led on power switch.
 int ledState = LOW;
 unsigned long previousMillis = 0;
 const long interval = 1000;
@@ -12,7 +12,7 @@ int reverseState = LOW;
 const int keyPin = 9;
 int keySwitchState = LOW;
 
-int potpin = 15;  // analog pin used to connect the potentiometer
+int potpin = 17;  // analog pin used to connect the potentiometer
 int clearPathPin = 10;    // LED connected to digital 
 int val;    // variable to read the value from the analog pin
 int light = 0;
@@ -28,9 +28,9 @@ int light = 0;
 //0,116,255        light blue
 //5,0,255            dark blue 
 
-int r[] = {5,0,0,0,255,255,255,255,255 };
-int g[] = {0,116,255,255,255,120,0,0,14};
-int b[] = {255,255,244,16,0,0,0,112,240};
+int r[] = {  0,  0,255,255,  0,  5,  0,255,255,255,255,255,255 };
+int g[] = {255,255,255,255,116,  0,255,255,120,  0,  0, 14,0};
+int b[] = { 16, 16,  0,  0,255,255, 16,  0,  0,  0,112,240,0};
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(60, PIN, NEO_GRB + NEO_KHZ800);
 
@@ -45,7 +45,7 @@ void setup() {
 }
 
 void speedometer(uint32_t c, uint8_t wait) {
-        for (int i=0;i<16; i++) {                            // 9 is the number of pixels in the ring
+        for (int i=0;i<24; i++) {                            // 9 is the number of pixels in the ring
           if (light>=i)  {
             delay(10);
             strip.setPixelColor(i, c);   
@@ -94,7 +94,7 @@ void reverse() {
 
 void loop() {
   val = analogRead(potpin);            // reads the value of the potentiometer (value between 0 and 1023)
-  light = map(val, 0, 1023, 0, 15);    // determines the number of lights to energize
+  light = map(val, 0, 1023, 0, 23);    // determines the number of lights to energize
   val = map(val, 0, 1023, 0, 235);     // scale it to use it with the servo (value between 0 and 180)
   analogWrite(clearPathPin, val);
   speedometer(strip.Color(r[light], g[light], b[light]), 5); // Red
