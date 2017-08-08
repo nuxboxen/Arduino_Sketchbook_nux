@@ -1,6 +1,7 @@
-#Power Wrapper Controller 
-#Brent Kinser
-#brentkinser@icloud.com
+//Power Wrapper Controller 
+//Brent Kinser
+//brentkinser@icloud.com
+//August 2017
 
 #include <Adafruit_NeoPixel.h>
 #define PIN 6
@@ -10,14 +11,15 @@ int ledState = LOW;
 unsigned long previousMillis = 0;
 const long interval = 1000;
 
-const int reversePin = 8;
 int reverseState = LOW;
 
-const int keyPin = 9;
+const int keyPin = 2;
 int keySwitchState = LOW;
 
-int potpin = 17;  // analog pin used to connect the potentiometer
-int clearPathPin = 10;    // LED connected to digital 
+int potpin = 14;  // analog pin used to connect the potentiometer
+const int reversePin = 12;       // White Wire in ClearPath Cable
+const int clearPathPin = 10;    // Black Wire in ClearPath Cable 
+const int enablePin = 11;       // Blue Wire in ClearPath Cable
 int val;    // variable to read the value from the analog pin
 int light = 0;
 
@@ -41,6 +43,7 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(60, PIN, NEO_GRB + NEO_KHZ800);
 void setup() {
   pinMode(ledPin, OUTPUT);
   pinMode(reversePin, OUTPUT);
+  pinMode(enablePin, OUTPUT);
   pinMode(keyPin, INPUT);
   Serial.begin(9600);
   Serial.print("Serial comms initialized \n\n");
@@ -97,6 +100,7 @@ void reverse() {
 }
 
 void loop() {
+  digitalWrite(enablePin,HIGH);
   val = analogRead(potpin);            // reads the value of the potentiometer (value between 0 and 1023)
   light = map(val, 0, 1023, 0, 23);    // determines the number of lights to energize
   val = map(val, 0, 1023, 0, 235);     // scale it to use it with the servo (value between 0 and 180)
