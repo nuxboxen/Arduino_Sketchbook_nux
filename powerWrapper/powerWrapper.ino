@@ -2,25 +2,28 @@
 //Brent Kinser
 //brentkinser@icloud.com
 //August 2017
-
+#include <OneButton.h>
 #include <Adafruit_NeoPixel.h>
 #define PIN 6
 
 const int ledPin =  7;  // Led on power switch.
 int ledState = LOW;
 unsigned long previousMillis = 0;
-const long interval = 1000;
+long interval = 1000;
 
 int reverseState = LOW;
 
-const int keyPin = 2;
-int keySwitchState = LOW;
+// const int keyPin = 2;
+OneButton button(2, true);
 
+boolean rotation = false;
+boolean dryMode = false;
 int potpin = 14;  // analog pin used to connect the potentiometer
 const int reversePin = 12;       // White Wire in ClearPath Cable
 const int clearPathPin = 10;    // Black Wire in ClearPath Cable 
 const int enablePin = 11;       // Blue Wire in ClearPath Cable
 int val;    // variable to read the value from the analog pin
+int drySpeed=4;
 int light = 0;
 
 // http://web-tech.ga-usa.com/2012/05/creating-a-custom-hot-to-cold-temperature-color-gradient-for-use-with-rrdtool/
@@ -44,11 +47,15 @@ void setup() {
   pinMode(ledPin, OUTPUT);
   pinMode(reversePin, OUTPUT);
   pinMode(enablePin, OUTPUT);
-  pinMode(keyPin, INPUT);
   Serial.begin(9600);
   Serial.print("Serial comms initialized \n\n");
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
+
+  //pinMode(keyPin, INPUT); 
+  button.attachClick(singleclick);    
+  button.attachDoubleClick(doubleclick);   // This function will be called when the button was pressed 2 times in a short timeframe.
+  button.attachLongPressStart(longpress);  // This function will be called once, when the button is pressed for a long time.
 }
 
 void speedometer(uint32_t c, uint8_t wait) {
@@ -70,7 +77,12 @@ void speedometer(uint32_t c, uint8_t wait) {
 
 void blink() {
      unsigned long currentMillis = millis();
-
+    if (dryMode == true){
+        interval = 330;
+    }
+    else{
+        interval = 1000;
+    }
     if (currentMillis - previousMillis >= interval) {
     // save the last time you blinked the LED
     previousMillis = currentMillis;
@@ -88,25 +100,51 @@ void blink() {
 }
 
 void reverse() {
-  keySwitchState = digitalRead(keyPin);
-
-    if (keySwitchState == HIGH) {
-    // turn LED on:
+    if (rotation == false) {
     digitalWrite(reversePin, HIGH);
   } else {
-    // turn LED off:
     digitalWrite(reversePin, LOW);
   }
-}
+} //reverse
 
-void loop() {
+void singleclick() {
+  if (drySpeed>23){
+    drySpeed=1;
+  }
+  else{
+    drySpeed++;
+  }
+} // click1
+
+void doubleclick() {
+  rotation = !rotation;
+} // doubleclick
+
+void longpress() {
+dryMode = !dryMode;
+} // longpress
+
+void loop() { 
+  button.tick();  // keep watching the push button:
   digitalWrite(enablePin,HIGH);
   val = analogRead(potpin);            // reads the value of the potentiometer (value between 0 and 1023)
-  light = map(val, 0, 1023, 0, 23);    // determines the number of lights to energize
   val = map(val, 0, 1023, 0, 235);     // scale it to use it with the servo (value between 0 and 180)
-  analogWrite(clearPathPin, val);
+  if (dryMode == false){
+         analogWrite(clearPathPin, val);
+         light = map(val, 0, 235, 0, 23);    // determines the number of lights to energize
+  }
+  else{
+         if (val <= 50){
+          analogWrite(clearPathPin, drySpeed);   // remember if you change drySpeeds max, then this must be changed
+          light=map(drySpeed,1,24,0,23) ;   
+         }
+         else{
+          analogWrite(clearPathPin, 0);
+          light=0;
+         }
+  }
   speedometer(strip.Color(r[light], g[light], b[light]), 5); // Red
-  delay(15);                           // waits for the servo to get there
+  delay(10);                           // waits for the servo to get there
   blink();
   reverse();  
 
