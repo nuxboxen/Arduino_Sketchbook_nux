@@ -84,7 +84,7 @@ void setup()
 
   lcdBegin(); // This will setup our pins, and initialize the LCD
   updateDisplay(); // with displayMap untouched, SFE logo
-  setContrast(40); // Good values range from 40-60
+  setContrast(60); // Good values range from 40-60
   delay(2000);
 
   lcdFunTime(); // Runs a 30-second demo of graphics functions
