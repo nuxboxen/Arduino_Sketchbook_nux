@@ -517,5 +517,3 @@ void lcdBegin(void)
   LCDWrite(LCD_COMMAND, 0x20);
   LCDWrite(LCD_COMMAND, 0x0C); //Set display control, normal mode.
 }
-
-
